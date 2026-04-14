@@ -12,7 +12,12 @@ env:
 
 jobs:
   k6_test:
+    name: Performance Test (${{ matrix.profile }})
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        profile: [smoke, load, stress, spike, soak]
 
     steps:
       - name: Checkout code
@@ -38,20 +43,17 @@ jobs:
       - name: Setup k6
         uses: grafana/setup-k6-action@v1
 
-      - name: Run Smoke Test Suite
+      - name: Run k6 Profile
+        env:
+          PROFILE: ${{ matrix.profile }}
         run: |
-          mkdir -p reports/k6/smoke
-          pnpm run test:smoke
-
-      - name: Run Load Test Suite
-        run: |
-          mkdir -p reports/k6/load
-          pnpm run test:load
+          mkdir -p reports/k6/${{ matrix.profile }}
+          pnpm run test:${{ matrix.profile }}
 
       - name: Generate SQA Job Summary
         if: always()
         run: |
-          echo "## 📊 SQA Master Plan Results" >> $GITHUB_STEP_SUMMARY
+          echo "## 📊 SQA Results: ${{ matrix.profile }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           node -e "
             const fs = require('fs');
@@ -64,7 +66,6 @@ jobs:
               
               lines.slice(1).forEach(line => {
                 const parts = line.split(',');
-                // Add status-based emoji for better visibility
                 if (parts[3] === 'Pass') parts[3] = '✅ Pass';
                 if (parts[3] === 'Fail') parts[3] = '❌ Fail';
                 if (parts[3] === 'Not Run') parts[3] = '⚪ Not Run';
@@ -80,7 +81,7 @@ jobs:
         uses: actions/upload-artifact@v4
         if: always()
         with:
-          name: performance-reports-and-sqa-plan
+          name: performance-report-${{ matrix.profile }}
           path: |
             reports/
             test-cases/
