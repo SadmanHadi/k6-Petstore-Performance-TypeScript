@@ -1,0 +1,11 @@
+TestCaseID,TestCaseScenario,TestCaseSteps,TestCaseStatus
+TC-PET-001,Pet — Create Validation,"1. POST /v2/pet. 2. Verify 200 OK and ID presence.",Pass
+TC-PET-002,Pet — Read Reliability,"1. GET /v2/pet/{id}. 2. Verify name matches created data.",Pass
+TC-PET-003,Pet — Update Status Lifecycle,"1. PUT /v2/pet. 2. Verify status changed to 'sold'.",Pass
+TC-PET-004,Pet — Delete Sanitization,"1. DELETE /v2/pet/{id}. 2. Verify 200 OK.",Pass
+TC-PET-005,Pet — Search by Status,"1. GET /v2/pet/findByStatus. 2. Verify array response.",Pass
+TC-PERF-001,Performance — Smoke Test,"1. Run smoke profile. 2. Verify p(95) < 500ms.",Not Run
+TC-PERF-002,Performance — Load Test,"1. Run load profile. 2. Verify p(95) < 500ms and Error < 1%.",Not Run
+TC-PERF-003,Performance — Stress Test,"1. Run stress profile. 2. Verify p(95) < 1000ms and Error < 5%.",Not Run
+TC-PERF-004,Performance — Soak Test,"1. Run soak profile. 2. Verify stability for 5 minutes.",Not Run
+TC-PERF-005,Performance — Spike Test,"1. Run spike profile. 2. Verify p(95) < 1500ms and Error < 10%.",Not Run

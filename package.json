@@ -1,0 +1,30 @@
+{
+  "name": "k6-performance",
+  "version": "1.0.0",
+  "description": "High-performance Petstore API load testing suite using k6 and TypeScript.",
+  "scripts": {
+    "build": "webpack",
+    "test:smoke": "webpack && node scripts/run-test.js smoke",
+    "test:load": "webpack && node scripts/run-test.js load",
+    "test:stress": "webpack && node scripts/run-test.js stress",
+    "test:spike": "webpack && node scripts/run-test.js spike",
+    "test:soak": "webpack && node scripts/run-test.js soak",
+    "docker:build": "docker compose build",
+    "docker:run": "docker compose run --rm k6",
+    "docker:smoke": "docker compose run --rm -e PROFILE=smoke k6",
+    "docker:load": "docker compose run --rm -e PROFILE=load k6",
+    "docker:stress": "docker compose run --rm -e PROFILE=stress k6",
+    "docker:spike": "docker compose run --rm -e PROFILE=spike k6",
+    "docker:soak": "docker compose run --rm -e PROFILE=soak k6",
+    "docker:all": "node scripts/run-all-docker.js"
+  },
+  "license": "ISC",
+  "packageManager": "pnpm@10.30.3",
+  "devDependencies": {
+    "@types/k6": "1.6.0",
+    "ts-loader": "9.5.4",
+    "typescript": "5.9.3",
+    "webpack": "5.105.4",
+    "webpack-cli": "6.0.1"
+  }
+}

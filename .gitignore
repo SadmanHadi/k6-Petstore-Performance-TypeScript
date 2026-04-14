@@ -1,0 +1,7 @@
+node_modules
+dist
+.env
+.agents
+.planning
+*.log
+!reports/.gitkeep

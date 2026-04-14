@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  k6:
+    build: .
+    user: root
+    volumes:
+      - ./reports:/app/reports
+    environment:
+      - BASE_URL=${BASE_URL:-https://petstore.swagger.io}
+      - PROFILE=${PROFILE:-smoke}
+    # Command to run the bundled test and generate a summary
+    command: >
+      run 
+      -e PROFILE=${PROFILE:-smoke} 
+      -e BASE_URL=${BASE_URL:-https://petstore.swagger.io}
+      --summary-export=/app/reports/k6/${PROFILE:-smoke}/summary.json
+      /app/dist/petstore.bundle.js

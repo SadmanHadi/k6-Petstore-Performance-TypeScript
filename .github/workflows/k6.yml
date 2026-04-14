@@ -1,0 +1,87 @@
+name: k6 Performance Tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+env:
+  BASE_URL: ${{ secrets['BASE_URL'] }}
+
+jobs:
+  k6_test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: latest
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+
+      - name: Install dependencies
+        run: pnpm install --no-frozen-lockfile
+
+      - name: Build Bundles
+        run: pnpm run build
+
+      - name: Setup k6
+        uses: grafana/setup-k6-action@v1
+
+      - name: Run Smoke Test Suite
+        run: |
+          mkdir -p reports/k6/smoke
+          pnpm run test:smoke
+
+      - name: Run Load Test Suite
+        run: |
+          mkdir -p reports/k6/load
+          pnpm run test:load
+
+      - name: Generate SQA Job Summary
+        if: always()
+        run: |
+          echo "## 📊 SQA Master Plan Results" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          node -e "
+            const fs = require('fs');
+            try {
+              const content = fs.readFileSync('test-cases/TEST_CASES.csv', 'utf8').trim();
+              const lines = content.split('\n');
+              const headers = lines[0].split(',');
+              let md = '| ' + headers.join(' | ') + ' |\n';
+              md += '| ' + headers.map(() => '---').join(' | ') + ' |\n';
+              
+              lines.slice(1).forEach(line => {
+                const parts = line.split(',');
+                // Add status-based emoji for better visibility
+                if (parts[3] === 'Pass') parts[3] = '✅ Pass';
+                if (parts[3] === 'Fail') parts[3] = '❌ Fail';
+                if (parts[3] === 'Not Run') parts[3] = '⚪ Not Run';
+                md += '| ' + parts.join(' | ') + ' |\n';
+              });
+              fs.appendFileSync(process.env.GITHUB_STEP_SUMMARY, md);
+            } catch (err) {
+              console.log('Error generating summary:', err.message);
+            }
+          "
+
+      - name: Upload Performance Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-reports-and-sqa-plan
+          path: |
+            reports/
+            test-cases/
+          retention-days: 14
