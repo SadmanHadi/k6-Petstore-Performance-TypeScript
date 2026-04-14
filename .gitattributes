@@ -1,0 +1,4 @@
+# Mark generated reports as vendored/generated so they don't count towards language statistics
+reports/** linguist-vendored
+reports/** linguist-generated
+src/vendor/** linguist-vendored
